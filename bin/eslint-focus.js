@@ -122,7 +122,7 @@ async function main(argv) {
 	});
 }
 
-const [dir, rule] = process.argv.slice(2);
+const [rule, dir] = process.argv.slice(2);
 
 main({ dir: path.resolve(dir), rule }).catch((reason) => {
 	console.error(reason);

@@ -4,7 +4,7 @@ Allows running ESLint on a directory with a single rule.
 The rule MUST be enabled in your ESLint config for the files you want it to run on (e.g. enable it in your root `.eslintrc.js`).
 
 ```bash
-$ npx eslint-focus . react/no-unstable-nested-components
+$ npx eslint-focus react/no-unstable-nested-components .
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:106:29
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:145:15
 /Users/sebastian.silbermann/repo/CardExpirationWarning.tsx:51:23
