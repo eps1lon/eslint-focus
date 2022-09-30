@@ -24,7 +24,7 @@ module.exports = {
 		// silly rule
 		"@typescript-eslint/no-var-requires": "off",
 		// Prevent debugging stuff to slip through. allowed methods are directed at CLI user.
-		"no-console": ["error", { allow: ["error", "info", "warn"] }],
+		"no-console": ["error", { allow: ["error", "info", "table", "warn"] }],
 		"react/no-unstable-nested-components": ["warn", {}],
 	},
 };
