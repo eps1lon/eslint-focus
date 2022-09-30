@@ -76,11 +76,16 @@ async function main(argv) {
 			useEslintrc: false,
 		});
 
-		const [{ messages }] = await fileLinter.lintText(code, { filePath });
+		const results = await fileLinter.lintText(code, { filePath });
 
-		messages.forEach((message) => {
-			console.info(`${filePath}:${message.line}:${message.column}`);
-		});
+		// TODO: If the file is ignored, no results are returned.
+		// But it should've been already be caught by `eslint.isPathIgnored`
+		if (results.lenght > 0) {
+			const [{ messages }] = results;
+			messages.forEach((message) => {
+				console.info(`${filePath}:${message.line}:${message.column}`);
+			});
+		}
 	}
 
 	for await (const file of getLintFiles()) {
