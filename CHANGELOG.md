@@ -1,5 +1,18 @@
 # eslint-focus
 
+## 1.0.0
+
+### Major Changes
+
+- [#13](https://github.com/eps1lon/eslint-focus/pull/13) [`e33ebc9`](https://github.com/eps1lon/eslint-focus/commit/e33ebc92f22f90f0dbd5b92e5f3ca1f81bcf99fb) Thanks [@eps1lon](https://github.com/eps1lon)! - Switch order of positional arguments.
+
+  I ended up iterating over folders more often (to focus down on an issue) than switching the rule.
+  It's more convenient to have the argument you change often last.
+
+### Minor Changes
+
+- [#11](https://github.com/eps1lon/eslint-focus/pull/11) [`e433aa8`](https://github.com/eps1lon/eslint-focus/commit/e433aa81e2b17428e27fa5932f61ee5fc4487822) Thanks [@eps1lon](https://github.com/eps1lon)! - Continue with a warning if ESLint crashes
+
 ## 0.1.0
 
 ### Minor Changes
