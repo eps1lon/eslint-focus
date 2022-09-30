@@ -72,6 +72,7 @@ async function main(argv) {
 		const fileLinter = new ESLint({
 			allowInlineConfig: false,
 			baseConfig,
+			cwd: path.dirname(filePath),
 			useEslintrc: false,
 		});
 
