@@ -7,7 +7,7 @@ The rule MUST be enabled in your ESLint config for the files you want it to run 
 $ npx eslint-focus . react/no-unstable-nested-components
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:106:29
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:145:15
-/Users/sebastian.silbermann/repo/CardExpirationWarning.tsx:51:23                                                
+/Users/sebastian.silbermann/repo/CardExpirationWarning.tsx:51:23
 ```
 
 ## Missing
