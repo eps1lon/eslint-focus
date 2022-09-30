@@ -8,6 +8,16 @@ $ npx eslint-focus . react/no-unstable-nested-components
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:106:29
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:145:15
 /Users/sebastian.silbermann/repo/CardExpirationWarning.tsx:51:23
+┌──────────────────────┬────────┐
+│       (index)        │ Values │
+├──────────────────────┼────────┤
+│   Considered files   │ 71671  │
+│    Skipped files     │  181   │
+│ Files failed to lint │   1    │
+│  Files with issues   │  216   │
+│        Issues        │  308   │
+└──────────────────────┴────────┘
+Done in 386.08s.
 ```
 
 ## Missing
