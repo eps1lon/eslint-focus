@@ -80,7 +80,7 @@ async function main(argv) {
 
 		// TODO: If the file is ignored, no results are returned.
 		// But it should've been already be caught by `eslint.isPathIgnored`
-		if (results.lenght > 0) {
+		if (results.length > 0) {
 			const [{ messages }] = results;
 			messages.forEach((message) => {
 				console.info(`${filePath}:${message.line}:${message.column}`);
