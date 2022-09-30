@@ -16,6 +16,7 @@ async function main(argv) {
 	let consideredFilesTally = 0;
 	let skippedFilesTally = 0;
 	let filesWithIssuesTally = 0;
+	let failedFilesTally = 0;
 	let issuesTally = 0;
 
 	async function* getTrackedFiles() {
@@ -51,11 +52,17 @@ async function main(argv) {
 
 			// yield from then i.e. refactor this to use the streaming API
 			if (extensionRegex.test(trackedFile)) {
-				const isPathIgnored = await eslint.isPathIgnored(trackedFile);
-				if (!isPathIgnored) {
-					yield trackedFile;
-				} else {
-					skippedFilesTally += 1;
+				try {
+					const isPathIgnored = await eslint.isPathIgnored(trackedFile);
+					if (!isPathIgnored) {
+						yield trackedFile;
+					} else {
+						skippedFilesTally += 1;
+					}
+				} catch (error) {
+					failedFilesTally += 1;
+					console.warn(`${trackedFile}: ${error}`);
+					return;
 				}
 			}
 		}
@@ -109,6 +116,7 @@ async function main(argv) {
 	console.table({
 		"Considered files": consideredFilesTally,
 		"Skipped files": skippedFilesTally,
+		"Files failed to lint": failedFilesTally,
 		"Files with issues": filesWithIssuesTally,
 		Issues: issuesTally,
 	});
