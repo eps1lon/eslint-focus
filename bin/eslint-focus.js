@@ -52,11 +52,17 @@ async function main(argv) {
 
 			// yield from then i.e. refactor this to use the streaming API
 			if (extensionRegex.test(trackedFile)) {
-				const isPathIgnored = await eslint.isPathIgnored(trackedFile);
-				if (!isPathIgnored) {
-					yield trackedFile;
-				} else {
-					skippedFilesTally += 1;
+				try {
+					const isPathIgnored = await eslint.isPathIgnored(trackedFile);
+					if (!isPathIgnored) {
+						yield trackedFile;
+					} else {
+						skippedFilesTally += 1;
+					}
+				} catch (error) {
+					failedFilesTally += 1;
+					console.warn(`${trackedFile}: ${error}`);
+					return;
 				}
 			}
 		}
@@ -86,13 +92,7 @@ async function main(argv) {
 			useEslintrc: false,
 		});
 
-		let results = [];
-		try {
-			results = await fileLinter.lintText(code, { filePath });
-		} catch (error) {
-			failedFilesTally += 1;
-			console.warn(`Failed to lint ${filePath}: ${error}`);
-		}
+		const results = await fileLinter.lintText(code, { filePath });
 
 		// TODO: If the file is ignored, no results are returned.
 		// But it should've been already be caught by `eslint.isPathIgnored`
