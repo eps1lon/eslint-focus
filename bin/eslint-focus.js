@@ -16,6 +16,7 @@ async function main(argv) {
 	let consideredFilesTally = 0;
 	let skippedFilesTally = 0;
 	let filesWithIssuesTally = 0;
+	let failedFilesTally = 0;
 	let issuesTally = 0;
 
 	async function* getTrackedFiles() {
@@ -85,7 +86,13 @@ async function main(argv) {
 			useEslintrc: false,
 		});
 
-		const results = await fileLinter.lintText(code, { filePath });
+		let results = [];
+		try {
+			results = await fileLinter.lintText(code, { filePath });
+		} catch (error) {
+			failedFilesTally += 1;
+			console.warn(`Failed to lint ${filePath}: ${error}`);
+		}
 
 		// TODO: If the file is ignored, no results are returned.
 		// But it should've been already be caught by `eslint.isPathIgnored`
@@ -109,6 +116,7 @@ async function main(argv) {
 	console.table({
 		"Considered files": consideredFilesTally,
 		"Skipped files": skippedFilesTally,
+		"Files failed to lint": failedFilesTally,
 		"Files with issues": filesWithIssuesTally,
 		Issues: issuesTally,
 	});
