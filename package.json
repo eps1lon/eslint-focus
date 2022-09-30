@@ -10,6 +10,7 @@
 	"scripts": {
 		"format": "yarn prettier --write .",
 		"format:check": "yarn prettier --check .",
+		"release": "yarn changeset publish",
 		"test:lint": "eslint --max-warnings 0 --report-unused-disable-directives bin"
 	},
 	"packageManager": "yarn@3.2.3",
