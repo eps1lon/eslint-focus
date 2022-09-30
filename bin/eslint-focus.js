@@ -13,6 +13,11 @@ async function main(argv) {
 
 	const eslint = new ESLint({ cwd: dir });
 
+	let consideredFilesTally = 0;
+	let skippedFilesTally = 0;
+	let filesWithIssuesTally = 0;
+	let issuesTally = 0;
+
 	async function* getTrackedFiles() {
 		const gitProcess = spawn("git", ["ls-tree", "-r", "HEAD", "--name-only"], {
 			cwd: dir,
@@ -42,11 +47,15 @@ async function main(argv) {
 
 	async function* getLintFiles() {
 		for await (const trackedFile of getTrackedFiles()) {
+			consideredFilesTally += 1;
+
 			// yield from then i.e. refactor this to use the streaming API
 			if (extensionRegex.test(trackedFile)) {
 				const isPathIgnored = await eslint.isPathIgnored(trackedFile);
 				if (!isPathIgnored) {
 					yield trackedFile;
+				} else {
+					skippedFilesTally += 1;
 				}
 			}
 		}
@@ -85,12 +94,24 @@ async function main(argv) {
 			messages.forEach((message) => {
 				console.info(`${filePath}:${message.line}:${message.column}`);
 			});
+
+			issuesTally += messages.length;
+			if (messages.length > 0) {
+				filesWithIssuesTally += 1;
+			}
 		}
 	}
 
 	for await (const file of getLintFiles()) {
 		await lintFile(file);
 	}
+
+	console.table({
+		"Considered files": consideredFilesTally,
+		"Skipped files": skippedFilesTally,
+		"Files with issues": filesWithIssuesTally,
+		Issues: issuesTally,
+	});
 }
 
 const [dir, rule] = process.argv.slice(2);
