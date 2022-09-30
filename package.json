@@ -1,25 +1,39 @@
 {
 	"name": "eslint-focus",
+	"version": "0.0.1",
 	"type": "commonjs",
 	"license": "MIT",
+	"bin": "./bin/eslint-focus.js",
 	"peerDependencies": {
 		"eslint": "^8.0.0"
 	},
 	"scripts": {
 		"format": "yarn prettier --write .",
-		"format:check": "yarn prettier --check ."
+		"format:check": "yarn prettier --check .",
+		"test:lint": "eslint --max-warnings 0 --report-unused-disable-directives bin"
 	},
 	"packageManager": "yarn@3.2.3",
 	"volta": {
 		"node": "18.10.0"
 	},
 	"devDependencies": {
+		"@changesets/cli": "^2.24.4",
 		"@types/node": "^18.7.23",
+		"@typescript-eslint/eslint-plugin": "latest",
+		"@typescript-eslint/parser": "latest",
 		"eslint": "^8.24.0",
+		"eslint-plugin-react": "^7.31.8",
 		"prettier": "^2.7.1",
 		"typescript": "^4.8.4"
 	},
 	"prettier": {
 		"useTabs": true
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/eps1lon/eslint-focus.git"
 	}
 }

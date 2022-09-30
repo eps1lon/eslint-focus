@@ -11,3 +11,6 @@ node_modules/
 # Documentation here: https://yarnpkg.com/features/zero-installs
 !.yarn/cache
 #.pnp.*
+
+# npm-pack output
+*.tgz

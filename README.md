@@ -1,6 +1,15 @@
 # eslint-focus
 
-Allows running ESLint with a single rule
+Allows running ESLint on a directory with a single rule.
+The rule MUST be enabled in your ESLint config for the files you want it to run on (e.g. enable it in your root `.eslintrc.js`).
+
+```bash
+$ npx eslint-focus . react/no-unstable-nested-components
+```
+
+## Missing
+
+Configure extensions. By default it runs on everything that's TypeScript or JavaScript i.e. `/\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/`.
 
 ## Why?
 
