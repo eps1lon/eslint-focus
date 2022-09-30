@@ -1,5 +1,15 @@
 # eslint-focus
 
+## 0.1.0
+
+### Minor Changes
+
+- [#10](https://github.com/eps1lon/eslint-focus/pull/10) [`279b119`](https://github.com/eps1lon/eslint-focus/commit/279b119f8b385a5b6691f07c6ca02b00ed8d4e45) Thanks [@eps1lon](https://github.com/eps1lon)! - Add summary of run
+
+### Patch Changes
+
+- [#8](https://github.com/eps1lon/eslint-focus/pull/8) [`5a33e82`](https://github.com/eps1lon/eslint-focus/commit/5a33e82047a134f0efaf884f4d66079c13ec3491) Thanks [@eps1lon](https://github.com/eps1lon)! - Fix files with warnings not being logged
+
 ## 0.0.3
 
 ### Patch Changes
