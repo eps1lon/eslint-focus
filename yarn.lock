@@ -1113,6 +1113,8 @@ __metadata:
     typescript: ^4.8.4
   peerDependencies:
     eslint: ^8.0.0
+  bin:
+    eslint-focus: ./bin/eslint-focus.js
   languageName: unknown
   linkType: soft
 
