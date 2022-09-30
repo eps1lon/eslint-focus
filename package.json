@@ -1,0 +1,25 @@
+{
+	"name": "eslint-focus",
+	"type": "commonjs",
+	"license": "MIT",
+	"peerDependencies": {
+		"eslint": "^8.0.0"
+	},
+	"scripts": {
+		"format": "yarn prettier --write .",
+		"format:check": "yarn prettier --check ."
+	},
+	"packageManager": "yarn@3.2.3",
+	"volta": {
+		"node": "18.10.0"
+	},
+	"devDependencies": {
+		"@types/node": "^18.7.23",
+		"eslint": "^8.24.0",
+		"prettier": "^2.7.1",
+		"typescript": "^4.8.4"
+	},
+	"prettier": {
+		"useTabs": true
+	}
+}
