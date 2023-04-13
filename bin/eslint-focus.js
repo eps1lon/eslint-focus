@@ -9,7 +9,7 @@ const path = require("path");
 const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 
 async function main(argv) {
-	const { dir, rule } = argv;
+	const { allowInlineConfig, dir, rule } = argv;
 
 	const eslint = new ESLint({ cwd: dir });
 
@@ -86,7 +86,7 @@ async function main(argv) {
 			},
 		};
 		const fileLinter = new ESLint({
-			allowInlineConfig: false,
+			allowInlineConfig,
 			baseConfig,
 			cwd: path.dirname(filePath),
 			useEslintrc: false,
@@ -122,9 +122,13 @@ async function main(argv) {
 	});
 }
 
-const [rule, dir] = process.argv.slice(2);
+const [rule, dir, allowInlineConfig] = process.argv.slice(2);
 
-main({ dir: path.resolve(dir), rule }).catch((reason) => {
+main({
+	allowInlineConfig: allowInlineConfig === "--allowInlineConfig",
+	dir: path.resolve(dir),
+	rule,
+}).catch((reason) => {
 	console.error(reason);
 	process.exit(1);
 });

@@ -20,6 +20,9 @@ $ npx eslint-focus react/no-unstable-nested-components .
 Done in 386.08s.
 ```
 
+By default, `allowInlineConfig` is disabled i.e. `eslint-disable` directives are ignored.
+You can run with `--allowInlineConfig` to enable these directives: `npx eslint-focus react/no-unstable-nested-components . --allowInlineConfig`
+
 ## Missing
 
 Configure extensions. By default it runs on everything that's TypeScript or JavaScript i.e. `/\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/`.
