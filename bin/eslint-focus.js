@@ -3,13 +3,16 @@
 const { ESLint } = require("eslint");
 const { spawn } = require("child_process");
 const fs = require("fs/promises");
+const { constants: fsConstants } = require("fs");
 const process = require("process");
 const path = require("path");
 
 const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 
 async function main(argv) {
-	const { allowInlineConfig, dir, rule } = argv;
+	const { allowInlineConfig, dir, ruleOrRulePattern } = argv;
+	// check if directory exists and is readable
+	await fs.access(dir, fsConstants.R_OK);
 
 	const eslint = new ESLint({ cwd: dir });
 
@@ -71,19 +74,32 @@ async function main(argv) {
 	async function lintFile(filePath) {
 		const config = await eslint.calculateConfigForFile(filePath);
 
+		const rules = {};
+		const mayLintMultipleRules = ruleOrRulePattern.startsWith("/");
+		if (ruleOrRulePattern.startsWith("/")) {
+			const ruleRegExp = new RegExp(ruleOrRulePattern.slice(1, -1));
+			for (const rule of Object.keys(config.rules)) {
+				if (ruleRegExp.test(rule)) {
+					rules[rule] = config.rules[rule];
+				}
+			}
+		} else {
+			rules[ruleOrRulePattern] = config.rules[ruleOrRulePattern];
+		}
+
 		// Remember, we only want to run a focused test of the rule
 		// There's no point testing the rule on a file where that rule would never be enabled in the first place
-		const ruleSeverity = config.rules[rule];
-		if (ruleSeverity === undefined || ruleSeverity[0] === "off") {
+		const hasEnabledRules = Object.values(rules).some((ruleSeverity) => {
+			return ruleSeverity !== undefined && ruleSeverity[0] !== "off";
+		});
+		if (!hasEnabledRules) {
 			return;
 		}
 		const code = await fs.readFile(filePath, { encoding: "utf-8" });
 
 		const baseConfig = {
 			...config,
-			rules: {
-				[rule]: "error",
-			},
+			rules,
 		};
 		const fileLinter = new ESLint({
 			allowInlineConfig,
@@ -99,7 +115,11 @@ async function main(argv) {
 		if (results.length > 0) {
 			const [{ messages }] = results;
 			messages.forEach((message) => {
-				console.info(`${filePath}:${message.line}:${message.column}`);
+				console.info(
+					`${filePath}:${message.line}:${message.column}${
+						mayLintMultipleRules ? ` (${message.ruleId})` : ""
+					}`
+				);
 			});
 
 			issuesTally += messages.length;
@@ -122,12 +142,12 @@ async function main(argv) {
 	});
 }
 
-const [rule, dir, allowInlineConfig] = process.argv.slice(2);
+const [ruleOrRulePattern, dir, allowInlineConfig] = process.argv.slice(2);
 
 main({
 	allowInlineConfig: allowInlineConfig === "--allowInlineConfig",
 	dir: path.resolve(dir),
-	rule,
+	ruleOrRulePattern,
 }).catch((reason) => {
 	console.error(reason);
 	process.exit(1);

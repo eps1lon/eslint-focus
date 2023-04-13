@@ -1,9 +1,10 @@
 # eslint-focus
 
-Allows running ESLint on a directory with a single rule.
-The rule MUST be enabled in your ESLint config for the files you want it to run on (e.g. enable it in your root `.eslintrc.js`).
+Allows running ESLint on a directory with a single rule or set of rules matching a pattern.
+The matched rules MUST be enabled in your ESLint config for the files you want it to run on (e.g. enable it in your root `.eslintrc.js`).
 
 ```bash
+# single rule
 $ npx eslint-focus react/no-unstable-nested-components .
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:106:29
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:145:15
@@ -18,6 +19,8 @@ $ npx eslint-focus react/no-unstable-nested-components .
 │        Issues        │  308   │
 └──────────────────────┴────────┘
 Done in 386.08s.
+# multiple rules (e.g. all rules from `eslint-plugin-jest`)
+$ npx eslint-focus /jest\// .
 ```
 
 By default, `allowInlineConfig` is disabled i.e. `eslint-disable` directives are ignored.
