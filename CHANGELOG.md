@@ -1,5 +1,13 @@
 # eslint-focus
 
+## 1.1.0
+
+### Minor Changes
+
+- [#18](https://github.com/eps1lon/eslint-focus/pull/18) [`6202294`](https://github.com/eps1lon/eslint-focus/commit/6202294bab7403e39fe0a9ab100a62d779d7b5f4) Thanks [@eps1lon](https://github.com/eps1lon)! - Allow running on rules matching a pattern
+
+- [#16](https://github.com/eps1lon/eslint-focus/pull/16) [`d8fbf61`](https://github.com/eps1lon/eslint-focus/commit/d8fbf6172ecede4a4eebf4dff145c0689ed979ee) Thanks [@eps1lon](https://github.com/eps1lon)! - Add support for ESLint directives via `--allowInlineConfig`
+
 ## 1.0.0
 
 ### Major Changes
