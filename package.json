@@ -21,6 +21,7 @@
 		"@changesets/changelog-github": "^0.4.6",
 		"@changesets/cli": "^2.24.4",
 		"@types/node": "^18.7.23",
+		"@types/yargs": "^17.0.24",
 		"@typescript-eslint/eslint-plugin": "latest",
 		"@typescript-eslint/parser": "latest",
 		"eslint": "^8.24.0",
@@ -37,5 +38,8 @@
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/eps1lon/eslint-focus.git"
+	},
+	"dependencies": {
+		"yargs": "^17.7.2"
 	}
 }

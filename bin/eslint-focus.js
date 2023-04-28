@@ -6,11 +6,30 @@ const fs = require("fs/promises");
 const { constants: fsConstants } = require("fs");
 const process = require("process");
 const path = require("path");
+const { hideBin } = require("yargs/helpers");
+const Yargs = require("yargs/yargs");
+const { terminalWidth } = require("yargs");
 
 const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 
+/**
+ * @param {object} argv
+ * @param {boolean} argv.allowInlineConfig
+ * @param {string} argv.relativeOrAbsolutePath
+ * @param {string} argv.ruleOrRulePattern
+ * @param {boolean} argv.fix
+ * @param {string[]} argv.fixType
+ */
 async function main(argv) {
-	const { allowInlineConfig, dir, ruleOrRulePattern } = argv;
+	const {
+		allowInlineConfig,
+		relativeOrAbsolutePath,
+		fix,
+		fixType,
+		ruleOrRulePattern,
+	} = argv;
+	const dir = path.resolve(relativeOrAbsolutePath);
+
 	// check if directory exists and is readable
 	await fs.access(dir, fsConstants.R_OK);
 
@@ -105,6 +124,8 @@ async function main(argv) {
 			allowInlineConfig,
 			baseConfig,
 			cwd: path.dirname(filePath),
+			fix,
+			fixTypes: fixType,
 			useEslintrc: false,
 		});
 
@@ -121,6 +142,8 @@ async function main(argv) {
 					}`
 				);
 			});
+
+			await ESLint.outputFixes(results);
 
 			issuesTally += messages.length;
 			if (messages.length > 0) {
@@ -142,13 +165,58 @@ async function main(argv) {
 	});
 }
 
-const [ruleOrRulePattern, dir, allowInlineConfig] = process.argv.slice(2);
-
-main({
-	allowInlineConfig: allowInlineConfig === "--allowInlineConfig",
-	dir: path.resolve(dir),
-	ruleOrRulePattern,
-}).catch((reason) => {
-	console.error(reason);
-	process.exit(1);
-});
+Yargs(hideBin(process.argv))
+	.scriptName("eslint-focus")
+	.command(
+		"$0 <ruleOrRulePattern> <relativeOrAbsolutePath>",
+		"Run ESLint with a single rule or rules matching a pattern on a given directory.",
+		(builder) => {
+			return builder
+				.positional("ruleOrRulePattern", {
+					describe: "A single rule or pattern",
+					type: "string",
+				})
+				.positional("relativeOrAbsolutePath", {
+					describe:
+						"An absolute path or a path relative to the current working directory.",
+					type: "string",
+				})
+				.option("allowInlineConfig", {
+					describe: "Respects eslint-disable directives.",
+					type: "boolean",
+					default: false,
+				})
+				.option("fix", {
+					describe:
+						"Same as `eslint --fix`: https://eslint.org/docs/latest/use/command-line-interface#--fix",
+					type: "boolean",
+					default: false,
+				})
+				.option("fix-type", {
+					describe:
+						"Same as `eslint --fix-type`: https://eslint.org/docs/latest/use/command-line-interface#--fix-type",
+					array: true,
+					type: "string",
+				});
+		},
+		(argv) => {
+			return main(argv);
+		}
+	)
+	.example(
+		"npx $0 react-hooks/rules-of-hooks .",
+		"Run `react-hooks/rules-of-hooks` on every file inside the current directory."
+	)
+	.example(
+		"npx $1 /jest\\// .",
+		"Run all Jest rules on every file inside the current directory."
+	)
+	.example(
+		"npx $0 react-hooks/exhaustive-deps . --fix --fix-type suggestion",
+		"Fixes all `react-hooks/exhaustive-deps` issues inside the current directory."
+	)
+	.wrap(Math.min(120, terminalWidth()))
+	.version()
+	.strict(true)
+	.help()
+	.parse();

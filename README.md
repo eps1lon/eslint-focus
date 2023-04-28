@@ -3,8 +3,36 @@
 Allows running ESLint on a directory with a single rule or set of rules matching a pattern.
 The matched rules MUST be enabled in your ESLint config for the files you want it to run on (e.g. enable it in your root `.eslintrc.js`).
 
+## Usage
+
 ```bash
-# single rule
+npx eslint-focus <ruleOrRulePattern> <relativeOrAbsolutePath>
+
+Run ESLint with a single rule or rules matching a pattern on a given directory.
+
+Positionals:
+  ruleOrRulePattern       A single rule or pattern                                                              [string]
+  relativeOrAbsolutePath  An absolute path or a path relative to the current working directory.                 [string]
+
+Options:
+  --version            Show version number                                                                     [boolean]
+  --help               Show help                                                                               [boolean]
+  --allowInlineConfig  Respects eslint-disable directives.                                    [boolean] [default: false]
+  --fix                Same as `eslint --fix`: https://eslint.org/docs/latest/use/command-line-interface#--fix
+                                                                                              [boolean] [default: false]
+  --fix-type           Same as `eslint --fix-type`: https://eslint.org/docs/latest/use/command-line-interface#--fix-type
+                                                                                                                 [array]
+
+Examples:
+  npx eslint-focus react-hooks/rules-of-hooks .                 Run `react-hooks/rules-of-hooks` on every file inside
+                                                                the current directory.
+  npx $1 /jest\// .                                             Run all Jest rules on every file inside the current
+                                                                directory.
+  npx eslint-focus react-hooks/exhaustive-deps . --fix          Fixes all `react-hooks/exhaustive-deps` issues inside
+  --fix-type suggestion                                         the current directory.
+```
+
+```bash
 $ npx eslint-focus react/no-unstable-nested-components .
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:106:29
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:145:15
@@ -19,12 +47,7 @@ $ npx eslint-focus react/no-unstable-nested-components .
 │        Issues        │  308   │
 └──────────────────────┴────────┘
 Done in 386.08s.
-# multiple rules (e.g. all rules from `eslint-plugin-jest`)
-$ npx eslint-focus /jest\// .
 ```
-
-By default, `allowInlineConfig` is disabled i.e. `eslint-disable` directives are ignored.
-You can run with `--allowInlineConfig` to enable these directives: `npx eslint-focus react/no-unstable-nested-components . --allowInlineConfig`
 
 ## Missing
 
@@ -33,6 +56,6 @@ Configure extensions. By default it runs on everything that's TypeScript or Java
 ## Why?
 
 - eslint-nibbler is slow
-- ESLint formatters still execute every rule
+- ESLint formatters still executes every rule
 - ESLint `--no-eslintrc` means I have to know the parser options up front
 - ESLint has no built-in support to stream results
