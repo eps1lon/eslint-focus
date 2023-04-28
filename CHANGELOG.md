@@ -1,5 +1,11 @@
 # eslint-focus
 
+## 1.2.0
+
+### Minor Changes
+
+- [#21](https://github.com/eps1lon/eslint-focus/pull/21) [`8a3765c`](https://github.com/eps1lon/eslint-focus/commit/8a3765cfa4559d7e4de8ab98f1b3d35586c71b31) Thanks [@eps1lon](https://github.com/eps1lon)! - Add support for running in auto-fix mode
+
 ## 1.1.0
 
 ### Minor Changes
