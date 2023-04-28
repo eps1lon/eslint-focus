@@ -6,23 +6,30 @@ The matched rules MUST be enabled in your ESLint config for the files you want i
 ## Usage
 
 ```bash
-eslint-focus <ruleOrRulePattern> <dir>
+npx eslint-focus <ruleOrRulePattern> <relativeOrAbsolutePath>
 
 Run ESLint with a single rule or rules matching a pattern on a given directory.
 
 Positionals:
-  ruleOrRulePattern  A single rule or pattern                                                                   [string]
-  dir                An absolute path or a path relative to the current working directory.                      [string]
+  ruleOrRulePattern       A single rule or pattern                                                              [string]
+  relativeOrAbsolutePath  An absolute path or a path relative to the current working directory.                 [string]
 
 Options:
   --version            Show version number                                                                     [boolean]
   --help               Show help                                                                               [boolean]
   --allowInlineConfig  Respects eslint-disable directives.                                    [boolean] [default: false]
+  --fix                Same as `eslint --fix`: https://eslint.org/docs/latest/use/command-line-interface#--fix
+                                                                                              [boolean] [default: false]
+  --fix-type           Same as `eslint --fix-type`: https://eslint.org/docs/latest/use/command-line-interface#--fix-type
+                                                                                                                 [array]
 
 Examples:
-  npx eslint-focus react-hooks/rules-of-hooks .  Run `react-hooks/rules-of-hooks` on every file inside the current
-                                                 directory.
-  npx $1 /jest\// .                              Run all Jest rules on every file inside the current directory.
+  npx eslint-focus react-hooks/rules-of-hooks .                 Run `react-hooks/rules-of-hooks` on every file inside
+                                                                the current directory.
+  npx $1 /jest\// .                                             Run all Jest rules on every file inside the current
+                                                                directory.
+  npx eslint-focus react-hooks/exhaustive-deps . --fix          Fixes all `react-hooks/exhaustive-deps` issues inside
+  --fix-type suggestion                                         the current directory.
 ```
 
 ```bash
@@ -42,22 +49,6 @@ $ npx eslint-focus react/no-unstable-nested-components .
 Done in 386.08s.
 ```
 
-### Multiple rules
-
-For example, all rules from `eslint-plugin-jest`.
-
-```bash
-$ npx eslint-focus /jest\// .
-```
-
-### Fixing rules
-
-All []"fix problems" CLI arguments from ESLint](https://eslint.org/docs/latest/use/command-line-interface#fix-problems) are supported:
-
-```bash
-$ npx eslint-focus rules-of-hooks/exhaustive-deps --fix --fix-type suggestion .
-```
-
 ## Missing
 
 Configure extensions. By default it runs on everything that's TypeScript or JavaScript i.e. `/\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/`.
@@ -65,6 +56,6 @@ Configure extensions. By default it runs on everything that's TypeScript or Java
 ## Why?
 
 - eslint-nibbler is slow
-- ESLint formatters still execute every rule
+- ESLint formatters still executes every rule
 - ESLint `--no-eslintrc` means I have to know the parser options up front
 - ESLint has no built-in support to stream results

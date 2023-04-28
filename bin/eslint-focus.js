@@ -15,11 +15,21 @@ const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 /**
  * @param {object} argv
  * @param {boolean} argv.allowInlineConfig
- * @param {string} argv.dir
+ * @param {string} argv.relativeOrAbsolutePath
  * @param {string} argv.ruleOrRulePattern
+ * @param {boolean} argv.fix
+ * @param {string[]} argv.fixType
  */
 async function main(argv) {
-	const { allowInlineConfig, dir, ruleOrRulePattern } = argv;
+	const {
+		allowInlineConfig,
+		relativeOrAbsolutePath,
+		fix,
+		fixType,
+		ruleOrRulePattern,
+	} = argv;
+	const dir = path.resolve(relativeOrAbsolutePath);
+
 	// check if directory exists and is readable
 	await fs.access(dir, fsConstants.R_OK);
 
@@ -114,6 +124,8 @@ async function main(argv) {
 			allowInlineConfig,
 			baseConfig,
 			cwd: path.dirname(filePath),
+			fix,
+			fixTypes: fixType,
 			useEslintrc: false,
 		});
 
@@ -130,6 +142,8 @@ async function main(argv) {
 					}`
 				);
 			});
+
+			await ESLint.outputFixes(results);
 
 			issuesTally += messages.length;
 			if (messages.length > 0) {
@@ -154,7 +168,7 @@ async function main(argv) {
 Yargs(hideBin(process.argv))
 	.scriptName("eslint-focus")
 	.command(
-		"$0 <ruleOrRulePattern> <dir>",
+		"$0 <ruleOrRulePattern> <relativeOrAbsolutePath>",
 		"Run ESLint with a single rule or rules matching a pattern on a given directory.",
 		(builder) => {
 			return builder
@@ -162,7 +176,7 @@ Yargs(hideBin(process.argv))
 					describe: "A single rule or pattern",
 					type: "string",
 				})
-				.positional("dir", {
+				.positional("relativeOrAbsolutePath", {
 					describe:
 						"An absolute path or a path relative to the current working directory.",
 					type: "string",
@@ -171,6 +185,18 @@ Yargs(hideBin(process.argv))
 					describe: "Respects eslint-disable directives.",
 					type: "boolean",
 					default: false,
+				})
+				.option("fix", {
+					describe:
+						"Same as `eslint --fix`: https://eslint.org/docs/latest/use/command-line-interface#--fix",
+					type: "boolean",
+					default: false,
+				})
+				.option("fix-type", {
+					describe:
+						"Same as `eslint --fix-type`: https://eslint.org/docs/latest/use/command-line-interface#--fix-type",
+					array: true,
+					type: "string",
 				});
 		},
 		(argv) => {
@@ -184,6 +210,10 @@ Yargs(hideBin(process.argv))
 	.example(
 		"npx $1 /jest\\// .",
 		"Run all Jest rules on every file inside the current directory."
+	)
+	.example(
+		"npx $0 react-hooks/exhaustive-deps . --fix --fix-type suggestion",
+		"Fixes all `react-hooks/exhaustive-deps` issues inside the current directory."
 	)
 	.wrap(Math.min(120, terminalWidth()))
 	.version()
