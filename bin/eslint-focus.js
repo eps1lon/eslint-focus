@@ -8,6 +8,7 @@ const process = require("process");
 const path = require("path");
 const { hideBin } = require("yargs/helpers");
 const Yargs = require("yargs/yargs");
+const { terminalWidth } = require("yargs");
 
 const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 
@@ -154,17 +155,37 @@ Yargs(hideBin(process.argv))
 	.scriptName("eslint-focus")
 	.command(
 		"$0 <ruleOrRulePattern> <dir>",
-		"Run ESLint on files that match the rule or rule pattern",
+		"Run ESLint with a single rule or rules matching a pattern on a given directory.",
 		(builder) => {
 			return builder
-				.positional("ruleOrRulePattern", { type: "string" })
-				.positional("dir", { type: "string" })
-				.option("allowInlineConfig", { type: "boolean", default: false });
+				.positional("ruleOrRulePattern", {
+					describe: "A single rule or pattern",
+					type: "string",
+				})
+				.positional("dir", {
+					describe:
+						"An absolute path or a path relative to the current working directory.",
+					type: "string",
+				})
+				.option("allowInlineConfig", {
+					describe: "Respects eslint-disable directives.",
+					type: "boolean",
+					default: false,
+				});
 		},
 		(argv) => {
 			return main(argv);
 		}
 	)
+	.example(
+		"npx $0 react-hooks/rules-of-hooks .",
+		"Run `react-hooks/rules-of-hooks` on every file inside the current directory."
+	)
+	.example(
+		"npx $1 /jest\\// .",
+		"Run all Jest rules on every file inside the current directory."
+	)
+	.wrap(Math.min(120, terminalWidth()))
 	.version()
 	.strict(true)
 	.help()

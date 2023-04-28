@@ -5,10 +5,25 @@ The matched rules MUST be enabled in your ESLint config for the files you want i
 
 ## Usage
 
-By default, `allowInlineConfig` is disabled i.e. `eslint-disable` directives are ignored.
-You can run with `--allowInlineConfig` to enable these directives: `npx eslint-focus react/no-unstable-nested-components . --allowInlineConfig`
+```bash
+eslint-focus <ruleOrRulePattern> <dir>
 
-### Single rule
+Run ESLint with a single rule or rules matching a pattern on a given directory.
+
+Positionals:
+  ruleOrRulePattern  A single rule or pattern                                                                   [string]
+  dir                An absolute path or a path relative to the current working directory.                      [string]
+
+Options:
+  --version            Show version number                                                                     [boolean]
+  --help               Show help                                                                               [boolean]
+  --allowInlineConfig  Respects eslint-disable directives.                                    [boolean] [default: false]
+
+Examples:
+  npx eslint-focus react-hooks/rules-of-hooks .  Run `react-hooks/rules-of-hooks` on every file inside the current
+                                                 directory.
+  npx $1 /jest\// .                              Run all Jest rules on every file inside the current directory.
+```
 
 ```bash
 $ npx eslint-focus react/no-unstable-nested-components .
