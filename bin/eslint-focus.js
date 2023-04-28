@@ -6,9 +6,17 @@ const fs = require("fs/promises");
 const { constants: fsConstants } = require("fs");
 const process = require("process");
 const path = require("path");
+const { hideBin } = require("yargs/helpers");
+const Yargs = require("yargs/yargs");
 
 const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 
+/**
+ * @param {object} argv
+ * @param {boolean} argv.allowInlineConfig
+ * @param {string} argv.dir
+ * @param {string} argv.ruleOrRulePattern
+ */
 async function main(argv) {
 	const { allowInlineConfig, dir, ruleOrRulePattern } = argv;
 	// check if directory exists and is readable
@@ -142,13 +150,22 @@ async function main(argv) {
 	});
 }
 
-const [ruleOrRulePattern, dir, allowInlineConfig] = process.argv.slice(2);
-
-main({
-	allowInlineConfig: allowInlineConfig === "--allowInlineConfig",
-	dir: path.resolve(dir),
-	ruleOrRulePattern,
-}).catch((reason) => {
-	console.error(reason);
-	process.exit(1);
-});
+Yargs(hideBin(process.argv))
+	.scriptName("eslint-focus")
+	.command(
+		"$0 <ruleOrRulePattern> <dir>",
+		"Run ESLint on files that match the rule or rule pattern",
+		(builder) => {
+			return builder
+				.positional("ruleOrRulePattern", { type: "string" })
+				.positional("dir", { type: "string" })
+				.option("allowInlineConfig", { type: "boolean", default: false });
+		},
+		(argv) => {
+			return main(argv);
+		}
+	)
+	.version()
+	.strict(true)
+	.help()
+	.parse();

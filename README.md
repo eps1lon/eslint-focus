@@ -3,8 +3,14 @@
 Allows running ESLint on a directory with a single rule or set of rules matching a pattern.
 The matched rules MUST be enabled in your ESLint config for the files you want it to run on (e.g. enable it in your root `.eslintrc.js`).
 
+## Usage
+
+By default, `allowInlineConfig` is disabled i.e. `eslint-disable` directives are ignored.
+You can run with `--allowInlineConfig` to enable these directives: `npx eslint-focus react/no-unstable-nested-components . --allowInlineConfig`
+
+### Single rule
+
 ```bash
-# single rule
 $ npx eslint-focus react/no-unstable-nested-components .
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:106:29
 /Users/sebastian.silbermann/repo/BottomSheet.native.tsx:145:15
@@ -19,12 +25,23 @@ $ npx eslint-focus react/no-unstable-nested-components .
 │        Issues        │  308   │
 └──────────────────────┴────────┘
 Done in 386.08s.
-# multiple rules (e.g. all rules from `eslint-plugin-jest`)
+```
+
+### Multiple rules
+
+For example, all rules from `eslint-plugin-jest`.
+
+```bash
 $ npx eslint-focus /jest\// .
 ```
 
-By default, `allowInlineConfig` is disabled i.e. `eslint-disable` directives are ignored.
-You can run with `--allowInlineConfig` to enable these directives: `npx eslint-focus react/no-unstable-nested-components . --allowInlineConfig`
+### Fixing rules
+
+All []"fix problems" CLI arguments from ESLint](https://eslint.org/docs/latest/use/command-line-interface#fix-problems) are supported:
+
+```bash
+$ npx eslint-focus rules-of-hooks/exhaustive-deps --fix --fix-type suggestion .
+```
 
 ## Missing
 
