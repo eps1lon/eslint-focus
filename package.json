@@ -11,7 +11,7 @@
 		"format": "yarn prettier --write .",
 		"format:check": "yarn prettier --check .",
 		"release": "yarn changeset publish",
-		"test:lint": "eslint --max-warnings 0 --report-unused-disable-directives bin",
+		"test:lint": "eslint --ignore-path .prettierignore --max-warnings 0 --report-unused-disable-directives bin",
 		"test:types": "tsc -p tsconfig.json --noEmit",
 		"test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
 	},
