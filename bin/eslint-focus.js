@@ -18,7 +18,7 @@ const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
  * @param {string} argv.relativeOrAbsolutePath
  * @param {string} argv.ruleOrRulePattern
  * @param {boolean} argv.fix
- * @param {string[]} argv.fixType
+ * @param {NonNullable<NonNullable<import('eslint').ESLint.Options['fixTypes']>[0]>[] | undefined} argv.fixType
  */
 async function main(argv) {
 	const {
@@ -90,9 +90,15 @@ async function main(argv) {
 		}
 	}
 
+	/**
+	 * @param {string} filePath
+	 */
 	async function lintFile(filePath) {
 		const config = await eslint.calculateConfigForFile(filePath);
 
+		/**
+		 * @type {Record<string, [import("eslint").Linter.StringSeverity]>}
+		 */
 		const rules = {};
 		const mayLintMultipleRules = ruleOrRulePattern.startsWith("/");
 		if (ruleOrRulePattern.startsWith("/")) {
@@ -175,11 +181,13 @@ Yargs(hideBin(process.argv))
 				.positional("ruleOrRulePattern", {
 					describe: "A single rule or pattern",
 					type: "string",
+					demandOption: true,
 				})
 				.positional("relativeOrAbsolutePath", {
 					describe:
 						"An absolute path or a path relative to the current working directory.",
 					type: "string",
+					demandOption: true,
 				})
 				.option("allowInlineConfig", {
 					describe: "Respects eslint-disable directives.",
@@ -197,6 +205,7 @@ Yargs(hideBin(process.argv))
 						"Same as `eslint --fix-type`: https://eslint.org/docs/latest/use/command-line-interface#--fix-type",
 					array: true,
 					type: "string",
+					choices: /** @type {const} */ (["problem", "suggestion", "layout"]),
 				});
 		},
 		(argv) => {

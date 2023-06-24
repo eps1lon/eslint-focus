@@ -27,6 +27,7 @@ jobs:
         if: github.repository_owner != 'eps1lon'
         run: yarn --check-cache
       - run: yarn test:lint
+      - run: yarn test:types
       - run: yarn format:check
       # for manual inspection of included files
       - run: npm pack
