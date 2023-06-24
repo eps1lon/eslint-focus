@@ -27,6 +27,11 @@ jobs:
         # Only run on forks
         if: github.repository_owner != 'eps1lon'
         run: yarn --check-cache
+      - name: Prepare tests
+        run: |
+          # Tests use Git so we need a valid commit author configuredS
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "jest@example.com"
       - run: yarn test
       - run: yarn test:types
       - run: yarn test:lint
