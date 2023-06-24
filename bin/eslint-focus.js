@@ -165,8 +165,8 @@ async function main(argv) {
 				// If ESLint fixed, we get `output`
 				// If it didn't fix, we get `source`
 				// We just want the code after linting
-				const code = output ?? source;
-				let lineSeparator = code?.match(/\r?\n/)?.[0];
+				const code = /** @type {string} */ (output ?? source);
+				let lineSeparator = code.match(/\r?\n/)?.[0];
 				if (lineSeparator === undefined) {
 					lineSeparator = "\n";
 				}
@@ -180,16 +180,22 @@ async function main(argv) {
 					return a.line - b.line;
 				});
 				for (const message of messages) {
-					const line = message.line;
-					if (violationsByLine[line] === undefined) {
-						violationsByLine[line] = [];
+					const { line, ruleId } = message;
+					if (ruleId !== null) {
+						if (violationsByLine[line] === undefined) {
+							violationsByLine[line] = [];
+						}
+						violationsByLine[line].push(ruleId);
 					}
-					violationsByLine[line].push(message.ruleId);
 				}
 
 				const lines = code.split(lineSeparator);
 				let insertedEslintDisableDirective = 0;
-				for (const [line, violatedRules] of Object.entries(violationsByLine)) {
+				for (const [lineKey, violatedRules] of Object.entries(
+					violationsByLine
+				)) {
+					// This should be an exact object but TS doesn't know that.
+					const line = /** @type {number} */ (/** @type {unknown} */ (lineKey));
 					// TODO: We don't indent this comment properly since Prettier is capable of doing that
 					let disableDirective = `// eslint-disable-next-line ${violatedRules.join(
 						","
