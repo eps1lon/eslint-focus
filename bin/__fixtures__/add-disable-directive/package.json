@@ -1,0 +1,8 @@
+{
+	"name": "eslint-focus-fixture",
+	"version": "0.0.0",
+	"license": "MIT",
+	"dependencies": {
+		"eslint": "8.43.0"
+	}
+}

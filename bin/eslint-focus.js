@@ -43,12 +43,17 @@ async function* getTrackedFiles(dir) {
 }
 
 /**
+ * @typedef {NonNullable<NonNullable<import('eslint').ESLint.Options['fixTypes']>[0]>} ESLintFixType
+ * @typedef {ESLintFixType | "add-disable-directive"} ESLintFocusFixType
+ */
+
+/**
  * @param {object} argv
  * @param {boolean} argv.allowInlineConfig
  * @param {string[]} argv.relativeOrAbsolutePaths
  * @param {string} argv.ruleOrRulePattern
  * @param {boolean} argv.fix
- * @param {NonNullable<NonNullable<import('eslint').ESLint.Options['fixTypes']>[0]>[] | undefined} argv.fixType
+ * @param {ESLintFocusFixType[]} argv.fixType
  */
 async function main(argv) {
 	const {
@@ -58,6 +63,16 @@ async function main(argv) {
 		fixType,
 		ruleOrRulePattern,
 	} = argv;
+
+	const eslintFixTypes = fixType.filter(
+		/**
+		 * @param {ESLintFocusFixType} type
+		 * @returns {type is ESLintFixType}
+		 */
+		(type) => {
+			return type !== "add-disable-directive";
+		}
+	);
 
 	let consideredFilesTally = 0;
 	let skippedFilesTally = 0;
@@ -132,8 +147,8 @@ async function main(argv) {
 			allowInlineConfig,
 			baseConfig,
 			cwd: path.dirname(filePath),
-			fix,
-			fixTypes: fixType,
+			fix: fix && eslintFixTypes.length > 0,
+			fixTypes: eslintFixTypes,
 			useEslintrc: false,
 		});
 
@@ -142,20 +157,87 @@ async function main(argv) {
 		// TODO: If the file is ignored, no results are returned.
 		// But it should've been already be caught by `eslint.isPathIgnored`
 		if (results.length > 0) {
-			const [{ messages }] = results;
-			messages.forEach((message) => {
-				console.info(
-					`${filePath}:${message.line}:${message.column}${
-						mayLintMultipleRules ? ` (${message.ruleId})` : ""
-					}`
-				);
-			});
-
 			await ESLint.outputFixes(results);
 
-			issuesTally += messages.length;
-			if (messages.length > 0) {
-				filesWithIssuesTally += 1;
+			const [{ messages, output, source }] = results;
+
+			if (fixType.includes("add-disable-directive")) {
+				// If ESLint fixed, we get `output`
+				// If it didn't fix, we get `source`
+				// We just want the code after linting
+				const code = output ?? source;
+				let lineSeparator = code?.match(/\r?\n/)?.[0];
+				if (lineSeparator === undefined) {
+					lineSeparator = "\n";
+				}
+				/**
+				 * Insertion order is matching keys in ascending order i.e.
+				 * the line numbers are in ascending order
+				 * @type {Record<number, string[]>}
+				 */
+				const violationsByLine = {};
+				messages.sort((a, b) => {
+					return a.line - b.line;
+				});
+				for (const message of messages) {
+					const line = message.line;
+					if (violationsByLine[line] === undefined) {
+						violationsByLine[line] = [];
+					}
+					violationsByLine[line].push(message.ruleId);
+				}
+
+				const lines = code.split(lineSeparator);
+				let insertedEslintDisableDirective = 0;
+				for (const [line, violatedRules] of Object.entries(violationsByLine)) {
+					// TODO: We don't indent this comment properly since Prettier is capable of doing that
+					let disableDirective = `// eslint-disable-next-line ${violatedRules.join(
+						","
+					)}`;
+					if (line > 1) {
+						// lines is 1-based
+						const insertionPosition = line - 2 + insertedEslintDisableDirective;
+						const previousLine = lines[insertionPosition];
+						const existingDisableDirective = previousLine.match(
+							/^\s*\/\/ eslint-disable-next-line(.*)?$/
+						);
+						if (existingDisableDirective !== null) {
+							// "eslint-disable-next-line rule1, rule2"
+							// "eslint-disable-next-line rule1, rule2 -- reason1"
+							const [rules, reasons] = existingDisableDirective[1].split(" --");
+							disableDirective = `// eslint-disable-next-line ${[
+								rules,
+								...violatedRules,
+							].join(", ")}`;
+							if (reasons) {
+								disableDirective += ` --${reasons}`;
+							}
+							lines[insertionPosition] = disableDirective;
+						} else {
+							lines.splice(insertionPosition + 1, 0, disableDirective);
+							insertedEslintDisableDirective += 1;
+						}
+					} else {
+						lines.splice(0, 0, disableDirective);
+						insertedEslintDisableDirective += 1;
+					}
+				}
+
+				const fixedCode = lines.join(lineSeparator);
+				await fs.writeFile(filePath, fixedCode, { encoding: "utf-8" });
+			} else {
+				messages.forEach((message) => {
+					console.info(
+						`${path.relative(process.cwd(), filePath)}:${message.line}:${
+							message.column
+						}${mayLintMultipleRules ? ` (${message.ruleId})` : ""}`
+					);
+				});
+
+				issuesTally += messages.length;
+				if (messages.length > 0) {
+					filesWithIssuesTally += 1;
+				}
 			}
 		}
 	}
@@ -214,10 +296,17 @@ Yargs(hideBin(process.argv))
 				})
 				.option("fix-type", {
 					describe:
-						"Same as `eslint --fix-type`: https://eslint.org/docs/latest/use/command-line-interface#--fix-type",
+						"Same as `eslint --fix-type` (https://eslint.org/docs/latest/use/command-line-interface#--fix-type) with an additional 'add-disable-directive' option to ignore the violation instead with an `eslint-disable-next-line` directive. " +
+						"'add-disable-directive' only adds `//` comments i.e. it will likely produce syntax errors if lint violations are found inside JSX.",
 					array: true,
+					default: [],
 					type: "string",
-					choices: /** @type {const} */ (["problem", "suggestion", "layout"]),
+					choices: /** @type {const} */ ([
+						"problem",
+						"suggestion",
+						"layout",
+						"add-disable-directive",
+					]),
 				});
 		},
 		(argv) => {
@@ -243,6 +332,10 @@ Yargs(hideBin(process.argv))
 	.example(
 		"npx $0 import/order packages/core packages/traits",
 		"(Relies on Bash globbing) Run `import/order` on every file inside 'packages/core' OR 'packages/traits'."
+	)
+	.example(
+		"npx $0 import/order packages/core --allowInlineConfig --fix --fix-type add-disable-directive",
+		"Adds eslint-disable-next-line directives to ignore all `import/order` violations inside 'packages/core'."
 	)
 	.wrap(Math.min(120, terminalWidth()))
 	.version()

@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 17.x, 18.x]
+        node-version: [18.x, 19.x, 20.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -26,8 +26,9 @@ jobs:
         # Only run on forks
         if: github.repository_owner != 'eps1lon'
         run: yarn --check-cache
-      - run: yarn test:lint
+      - run: yarn test
       - run: yarn test:types
+      - run: yarn test:lint
       - run: yarn format:check
       # for manual inspection of included files
       - run: npm pack

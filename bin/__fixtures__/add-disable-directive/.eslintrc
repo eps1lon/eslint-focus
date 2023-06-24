@@ -1,0 +1,7 @@
+{
+	"rules": {
+		"capitalized-comments": "error",
+		"eqeqeq": "error",
+		"no-constant-condition": "error"
+	}
+}
