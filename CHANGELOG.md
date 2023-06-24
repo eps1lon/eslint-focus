@@ -1,5 +1,15 @@
 # eslint-focus
 
+## 1.3.0
+
+### Minor Changes
+
+- [#25](https://github.com/eps1lon/eslint-focus/pull/25) [`84c1819`](https://github.com/eps1lon/eslint-focus/commit/84c18195d5c00b334cb18aaf214e9f4d2c9deff9) Thanks [@eps1lon](https://github.com/eps1lon)! - Allow linting multiple paths
+
+  Example 1 (relying on [Bash globbing](https://tldp.org/LDP/abs/html/globbingref.html)): `npx eslint-focus import/order packages/features/pf-*`
+
+  Example 2: `npx eslint-focus import/order packages/core packages/traits`
+
 ## 1.2.0
 
 ### Minor Changes
