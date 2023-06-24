@@ -13,9 +13,39 @@ const { terminalWidth } = require("yargs");
 const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 
 /**
+ * @param {string} dir
+ */
+async function* getTrackedFiles(dir) {
+	const gitProcess = spawn("git", ["ls-tree", "-r", "HEAD", "--name-only"], {
+		cwd: dir,
+	});
+
+	gitProcess.stderr.setEncoding("utf-8");
+	gitProcess.stdout.setEncoding("utf-8");
+
+	gitProcess.stderr.on("data", (errorOutput) => {
+		throw new Error(errorOutput);
+	});
+
+	let buffer = "";
+	for await (const partialChunk of gitProcess.stdout) {
+		const chunk = buffer + partialChunk;
+		const lines = chunk.split("\n");
+		for (let i = 0; i < lines.length - 1; i += 1) {
+			yield path.join(dir, lines[i]);
+		}
+		buffer = lines[lines.length - 1];
+	}
+
+	if (buffer !== "") {
+		yield path.join(dir, buffer);
+	}
+}
+
+/**
  * @param {object} argv
  * @param {boolean} argv.allowInlineConfig
- * @param {string} argv.relativeOrAbsolutePath
+ * @param {string[]} argv.relativeOrAbsolutePaths
  * @param {string} argv.ruleOrRulePattern
  * @param {boolean} argv.fix
  * @param {NonNullable<NonNullable<import('eslint').ESLint.Options['fixTypes']>[0]>[] | undefined} argv.fixType
@@ -23,17 +53,11 @@ const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 async function main(argv) {
 	const {
 		allowInlineConfig,
-		relativeOrAbsolutePath,
+		relativeOrAbsolutePaths,
 		fix,
 		fixType,
 		ruleOrRulePattern,
 	} = argv;
-	const dir = path.resolve(relativeOrAbsolutePath);
-
-	// check if directory exists and is readable
-	await fs.access(dir, fsConstants.R_OK);
-
-	const eslint = new ESLint({ cwd: dir });
 
 	let consideredFilesTally = 0;
 	let skippedFilesTally = 0;
@@ -41,35 +65,12 @@ async function main(argv) {
 	let failedFilesTally = 0;
 	let issuesTally = 0;
 
-	async function* getTrackedFiles() {
-		const gitProcess = spawn("git", ["ls-tree", "-r", "HEAD", "--name-only"], {
-			cwd: dir,
-		});
-
-		gitProcess.stderr.setEncoding("utf-8");
-		gitProcess.stdout.setEncoding("utf-8");
-
-		gitProcess.stderr.on("data", (errorOutput) => {
-			throw new Error(errorOutput);
-		});
-
-		let buffer = "";
-		for await (const partialChunk of gitProcess.stdout) {
-			const chunk = buffer + partialChunk;
-			const lines = chunk.split("\n");
-			for (let i = 0; i < lines.length - 1; i += 1) {
-				yield path.join(dir, lines[i]);
-			}
-			buffer = lines[lines.length - 1];
-		}
-
-		if (buffer !== "") {
-			yield path.join(dir, buffer);
-		}
-	}
-
-	async function* getLintFiles() {
-		for await (const trackedFile of getTrackedFiles()) {
+	/**
+	 * @param {ESLint} eslint
+	 * @param {string} dir
+	 */
+	async function* getLintFiles(eslint, dir) {
+		for await (const trackedFile of getTrackedFiles(dir)) {
 			consideredFilesTally += 1;
 
 			// yield from then i.e. refactor this to use the streaming API
@@ -91,9 +92,10 @@ async function main(argv) {
 	}
 
 	/**
+	 * @param {ESLint} eslint
 	 * @param {string} filePath
 	 */
-	async function lintFile(filePath) {
+	async function lintFile(eslint, filePath) {
 		const config = await eslint.calculateConfigForFile(filePath);
 
 		/**
@@ -158,8 +160,17 @@ async function main(argv) {
 		}
 	}
 
-	for await (const file of getLintFiles()) {
-		await lintFile(file);
+	for (const relativeOrAbsolutePath of relativeOrAbsolutePaths) {
+		const dir = path.resolve(relativeOrAbsolutePath);
+
+		// check if directory exists and is readable
+		await fs.access(dir, fsConstants.R_OK);
+
+		const eslint = new ESLint({ cwd: dir });
+
+		for await (const file of getLintFiles(eslint, dir)) {
+			await lintFile(eslint, file);
+		}
 	}
 
 	console.table({
@@ -174,7 +185,7 @@ async function main(argv) {
 Yargs(hideBin(process.argv))
 	.scriptName("eslint-focus")
 	.command(
-		"$0 <ruleOrRulePattern> <relativeOrAbsolutePath>",
+		"$0 <ruleOrRulePattern> <relativeOrAbsolutePaths..>",
 		"Run ESLint with a single rule or rules matching a pattern on a given directory.",
 		(builder) => {
 			return builder
@@ -183,11 +194,12 @@ Yargs(hideBin(process.argv))
 					type: "string",
 					demandOption: true,
 				})
-				.positional("relativeOrAbsolutePath", {
+				.positional("relativeOrAbsolutePaths", {
 					describe:
 						"An absolute path or a path relative to the current working directory.",
 					type: "string",
 					demandOption: true,
+					array: true,
 				})
 				.option("allowInlineConfig", {
 					describe: "Respects eslint-disable directives.",
@@ -223,6 +235,14 @@ Yargs(hideBin(process.argv))
 	.example(
 		"npx $0 react-hooks/exhaustive-deps . --fix --fix-type suggestion",
 		"Fixes all `react-hooks/exhaustive-deps` issues inside the current directory."
+	)
+	.example(
+		"npx $0 import/order packages/features/pf-*",
+		"(Relies on Bash globbing) Run `import/order` on every folder matching 'packages/features/pf-*'."
+	)
+	.example(
+		"npx $0 import/order packages/core packages/traits",
+		"(Relies on Bash globbing) Run `import/order` on every file inside 'packages/core' OR 'packages/traits'."
 	)
 	.wrap(Math.min(120, terminalWidth()))
 	.version()
