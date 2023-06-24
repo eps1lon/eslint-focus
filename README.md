@@ -6,30 +6,37 @@ The matched rules MUST be enabled in your ESLint config for the files you want i
 ## Usage
 
 ```bash
-npx eslint-focus <ruleOrRulePattern> <relativeOrAbsolutePath>
+npx eslint-focus <ruleOrRulePattern> <relativeOrAbsolutePaths..>
 
 Run ESLint with a single rule or rules matching a pattern on a given directory.
 
 Positionals:
-  ruleOrRulePattern       A single rule or pattern                                                              [string]
-  relativeOrAbsolutePath  An absolute path or a path relative to the current working directory.                 [string]
+  ruleOrRulePattern        A single rule or pattern                                                 [string]
+  relativeOrAbsolutePaths  An absolute path or a path relative to the current working directory.    [string]
 
 Options:
-  --version            Show version number                                                                     [boolean]
-  --help               Show help                                                                               [boolean]
-  --allowInlineConfig  Respects eslint-disable directives.                                    [boolean] [default: false]
-  --fix                Same as `eslint --fix`: https://eslint.org/docs/latest/use/command-line-interface#--fix
-                                                                                              [boolean] [default: false]
-  --fix-type           Same as `eslint --fix-type`: https://eslint.org/docs/latest/use/command-line-interface#--fix-type
-                                                                                                                 [array]
+  --version            Show version number                                                         [boolean]
+  --help               Show help                                                                   [boolean]
+  --allowInlineConfig  Respects eslint-disable directives.                        [boolean] [default: false]
+  --fix                Same as `eslint --fix`:
+                       https://eslint.org/docs/latest/use/command-line-interface#--fix
+                                                                                  [boolean] [default: false]
+  --fix-type           Same as `eslint --fix-type`:
+                       https://eslint.org/docs/latest/use/command-line-interface#--fix-type
+                                                        [array] [choices: "problem", "suggestion", "layout"]
 
 Examples:
-  npx eslint-focus react-hooks/rules-of-hooks .                 Run `react-hooks/rules-of-hooks` on every file inside
-                                                                the current directory.
-  npx $1 /jest\// .                                             Run all Jest rules on every file inside the current
-                                                                directory.
-  npx eslint-focus react-hooks/exhaustive-deps . --fix          Fixes all `react-hooks/exhaustive-deps` issues inside
-  --fix-type suggestion                                         the current directory.
+  npx eslint-focus react-hooks/rules-of-hooks .           Run `react-hooks/rules-of-hooks` on every file
+                                                          inside the current directory.
+  npx $1 /jest\// .                                       Run all Jest rules on every file inside the
+                                                          current directory.
+  npx eslint-focus react-hooks/exhaustive-deps . --fix    Fixes all `react-hooks/exhaustive-deps` issues
+  --fix-type suggestion                                   inside the current directory.
+  npx eslint-focus import/order packages/features/pf-*    (Relies on Bash globbing) Run `import/order` on
+                                                          every folder matching 'packages/features/pf-*'.
+  npx eslint-focus import/order packages/core             (Relies on Bash globbing) Run `import/order` on
+  packages/traits                                         every file inside 'packages/core' OR
+                                                          'packages/traits'.
 ```
 
 ```bash
