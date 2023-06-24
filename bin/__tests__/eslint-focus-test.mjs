@@ -23,7 +23,10 @@ async function setupFixture(fixtureName) {
 
 	execSync("git init", { cwd: fixtureDestinationPath });
 	execSync("git add -A . ", { cwd: fixtureDestinationPath });
-	execSync("git commit -m 'Initial commit'", { cwd: fixtureDestinationPath });
+	execSync(
+		"git commit --author='Jest <jest@example.com>' -m 'Initial commit'",
+		{ cwd: fixtureDestinationPath }
+	);
 	execSync("npm i", { cwd: fixtureDestinationPath });
 
 	return fixtureDestinationPath;
