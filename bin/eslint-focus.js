@@ -13,6 +13,32 @@ const { terminalWidth } = require("yargs");
 const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 
 /**
+ * @param {import("child_process").ChildProcessWithoutNullStreams} childProcess
+ */
+async function* getLinesFromProcess(childProcess) {
+	childProcess.stderr.setEncoding("utf-8");
+	childProcess.stdout.setEncoding("utf-8");
+
+	childProcess.stderr.on("data", (errorOutput) => {
+		throw new Error(errorOutput);
+	});
+
+	let buffer = "";
+	for await (const partialChunk of childProcess.stdout) {
+		const chunk = buffer + partialChunk;
+		const lines = chunk.split("\n");
+		for (let i = 0; i < lines.length - 1; i += 1) {
+			yield lines[i];
+		}
+		buffer = lines[lines.length - 1];
+	}
+
+	if (buffer !== "") {
+		yield buffer;
+	}
+}
+
+/**
  * @param {string} dir
  */
 async function* getTrackedFiles(dir) {
@@ -20,25 +46,28 @@ async function* getTrackedFiles(dir) {
 		cwd: dir,
 	});
 
-	gitProcess.stderr.setEncoding("utf-8");
-	gitProcess.stdout.setEncoding("utf-8");
+	for await (const file of getLinesFromProcess(gitProcess)) {
+		yield path.join(dir, file);
+	}
+}
 
-	gitProcess.stderr.on("data", (errorOutput) => {
-		throw new Error(errorOutput);
+/**
+ * @param {string} dir
+ * @param {string} diffOptions -- https://git-scm.com/docs/git-diff#_description
+ */
+async function* getTrackedFilesInDiff(dir, diffOptions) {
+	const args = ["diff", "--name-only", "--relative"];
+	if (diffOptions !== "") {
+		args.push(...diffOptions.split(" "));
+	}
+	args.push("--", ".");
+
+	const gitProcess = spawn("git", args, {
+		cwd: dir,
 	});
 
-	let buffer = "";
-	for await (const partialChunk of gitProcess.stdout) {
-		const chunk = buffer + partialChunk;
-		const lines = chunk.split("\n");
-		for (let i = 0; i < lines.length - 1; i += 1) {
-			yield path.join(dir, lines[i]);
-		}
-		buffer = lines[lines.length - 1];
-	}
-
-	if (buffer !== "") {
-		yield path.join(dir, buffer);
+	for await (const file of getLinesFromProcess(gitProcess)) {
+		yield path.join(dir, file);
 	}
 }
 
@@ -50,6 +79,7 @@ async function* getTrackedFiles(dir) {
 /**
  * @param {object} argv
  * @param {boolean} argv.allowInlineConfig
+ * @param {string} [argv.diff]
  * @param {string[]} argv.relativeOrAbsolutePaths
  * @param {string} argv.ruleOrRulePattern
  * @param {boolean} argv.fix
@@ -58,6 +88,7 @@ async function* getTrackedFiles(dir) {
 async function main(argv) {
 	const {
 		allowInlineConfig,
+		diff,
 		relativeOrAbsolutePaths,
 		fix,
 		fixType,
@@ -82,10 +113,10 @@ async function main(argv) {
 
 	/**
 	 * @param {ESLint} eslint
-	 * @param {string} dir
+	 * @param {AsyncGenerator<string, void, unknown>} files
 	 */
-	async function* getLintFiles(eslint, dir) {
-		for await (const trackedFile of getTrackedFiles(dir)) {
+	async function* getLintFiles(eslint, files) {
+		for await (const trackedFile of files) {
 			consideredFilesTally += 1;
 
 			// yield from then i.e. refactor this to use the streaming API
@@ -254,9 +285,14 @@ async function main(argv) {
 		// check if directory exists and is readable
 		await fs.access(dir, fsConstants.R_OK);
 
+		const files =
+			diff !== undefined
+				? getTrackedFilesInDiff(dir, diff)
+				: getTrackedFiles(dir);
+
 		const eslint = new ESLint({ cwd: dir });
 
-		for await (const file of getLintFiles(eslint, dir)) {
+		for await (const file of getLintFiles(eslint, files)) {
 			await lintFile(eslint, file);
 		}
 	}
@@ -293,6 +329,11 @@ Yargs(hideBin(process.argv))
 					describe: "Respects eslint-disable directives.",
 					type: "boolean",
 					default: false,
+				})
+				.option("diff", {
+					describe:
+						"Only includes file that are also part of git-diff. See git-diff docs for possible values.",
+					type: "string",
 				})
 				.option("fix", {
 					describe:

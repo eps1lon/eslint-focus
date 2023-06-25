@@ -1,5 +1,5 @@
 {
-	"name": "eslint-focus-fixture",
+	"name": "eslint-focus-fixture-add-disable-directive",
 	"version": "0.0.0",
 	"license": "MIT",
 	"dependencies": {

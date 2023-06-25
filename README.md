@@ -11,32 +11,36 @@ npx eslint-focus <ruleOrRulePattern> <relativeOrAbsolutePaths..>
 Run ESLint with a single rule or rules matching a pattern on a given directory.
 
 Positionals:
-  ruleOrRulePattern        A single rule or pattern                                                 [string]
-  relativeOrAbsolutePaths  An absolute path or a path relative to the current working directory.    [string]
+  ruleOrRulePattern        A single rule or pattern                                                             [string]
+  relativeOrAbsolutePaths  An absolute path or a path relative to the current working directory.                [string]
 
 Options:
-  --version            Show version number                                                         [boolean]
-  --help               Show help                                                                   [boolean]
-  --allowInlineConfig  Respects eslint-disable directives.                        [boolean] [default: false]
-  --fix                Same as `eslint --fix`:
-                       https://eslint.org/docs/latest/use/command-line-interface#--fix
-                                                                                  [boolean] [default: false]
-  --fix-type           Same as `eslint --fix-type`:
-                       https://eslint.org/docs/latest/use/command-line-interface#--fix-type
-                                                        [array] [choices: "problem", "suggestion", "layout"]
+  --version            Show version number                                                                     [boolean]
+  --help               Show help                                                                               [boolean]
+  --allowInlineConfig  Respects eslint-disable directives.                                    [boolean] [default: false]
+  --diff               Only includes file that are also part of git-diff. See git-diff docs for possible values.[string]
+  --fix                Same as `eslint --fix`: https://eslint.org/docs/latest/use/command-line-interface#--fix
+                                                                                              [boolean] [default: false]
+  --fix-type           Same as `eslint --fix-type`
+                       (https://eslint.org/docs/latest/use/command-line-interface#--fix-type) with an additional
+                       'add-disable-directive' option to ignore the violation instead with an `eslint-disable-next-line`
+                       directive. 'add-disable-directive' only adds `//` comments i.e. it will likely produce syntax
+                       errors if lint violations are found inside JSX.
+                             [array] [choices: "problem", "suggestion", "layout", "add-disable-directive"] [default: []]
 
 Examples:
-  npx eslint-focus react-hooks/rules-of-hooks .           Run `react-hooks/rules-of-hooks` on every file
-                                                          inside the current directory.
-  npx $1 /jest\// .                                       Run all Jest rules on every file inside the
-                                                          current directory.
-  npx eslint-focus react-hooks/exhaustive-deps . --fix    Fixes all `react-hooks/exhaustive-deps` issues
-  --fix-type suggestion                                   inside the current directory.
-  npx eslint-focus import/order packages/features/pf-*    (Relies on Bash globbing) Run `import/order` on
-                                                          every folder matching 'packages/features/pf-*'.
-  npx eslint-focus import/order packages/core             (Relies on Bash globbing) Run `import/order` on
-  packages/traits                                         every file inside 'packages/core' OR
-                                                          'packages/traits'.
+  npx eslint-focus react-hooks/rules-of-hooks .                 Run `react-hooks/rules-of-hooks` on every file inside
+                                                                the current directory.
+  npx $1 /jest\// .                                             Run all Jest rules on every file inside the current
+                                                                directory.
+  npx eslint-focus react-hooks/exhaustive-deps . --fix          Fixes all `react-hooks/exhaustive-deps` issues inside
+  --fix-type suggestion                                         the current directory.
+  npx eslint-focus import/order packages/features/pf-*          (Relies on Bash globbing) Run `import/order` on every
+                                                                folder matching 'packages/features/pf-*'.
+  npx eslint-focus import/order packages/core packages/traits   (Relies on Bash globbing) Run `import/order` on every
+                                                                file inside 'packages/core' OR 'packages/traits'.
+  npx eslint-focus import/order packages/core                   Adds eslint-disable-next-line directives to ignore all
+  --allowInlineConfig --fix --fix-type add-disable-directive    `import/order` violations inside 'packages/core'.
 ```
 
 ```bash
