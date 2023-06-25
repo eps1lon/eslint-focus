@@ -1,5 +1,13 @@
 # eslint-focus
 
+## 1.4.0
+
+### Minor Changes
+
+- [#27](https://github.com/eps1lon/eslint-focus/pull/27) [`03ae11f`](https://github.com/eps1lon/eslint-focus/commit/03ae11f94b82198d111bd72bf122dc1a4a508219) Thanks [@eps1lon](https://github.com/eps1lon)! - Add support for automatically adding eslint-disable-next-line directives
+
+  Specify `--fix-type add-disable-directive` to silence rules if they can't be autofixed: `npx eslint-focus import/order packages/core --allowInlineConfig --fix --fix-type add-disable-directive`
+
 ## 1.3.0
 
 ### Minor Changes
