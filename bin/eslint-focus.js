@@ -161,7 +161,7 @@ async function main(argv) {
 
 			const [{ messages, output, source }] = results;
 
-			if (fixType.includes("add-disable-directive")) {
+			if (messages.length > 0 && fixType.includes("add-disable-directive")) {
 				// If ESLint fixed, we get `output`
 				// If it didn't fix, we get `source`
 				// We just want the code after linting
