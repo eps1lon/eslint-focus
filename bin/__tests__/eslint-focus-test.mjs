@@ -56,6 +56,7 @@ test("usage", () => {
 		  --version            Show version number  [boolean]
 		  --help               Show help  [boolean]
 		  --allowInlineConfig  Respects eslint-disable directives.  [boolean] [default: false]
+		  --diff               Only includes file that are also part of git-diff. See git-diff docs for possible values.  [string]
 		  --fix                Same as \`eslint --fix\`: https://eslint.org/docs/latest/use/command-line-interface#--fix  [boolean] [default: false]
 		  --fix-type           Same as \`eslint --fix-type\` (https://eslint.org/docs/latest/use/command-line-interface#--fix-type) with an additional 'add-disable-directive' option to ignore the violation instead with an \`eslint-disable-next-line\` directive. 'add-disable-directive' only adds \`//\` comments i.e. it will likely produce syntax errors if lint violations are found inside JSX.  [array] [choices: "problem", "suggestion", "layout", "add-disable-directive"] [default: []]
 
@@ -66,6 +67,43 @@ test("usage", () => {
 		  npx eslint-focus import/order packages/features/pf-*                                                    (Relies on Bash globbing) Run \`import/order\` on every folder matching 'packages/features/pf-*'.
 		  npx eslint-focus import/order packages/core packages/traits                                             (Relies on Bash globbing) Run \`import/order\` on every file inside 'packages/core' OR 'packages/traits'.
 		  npx eslint-focus import/order packages/core --allowInlineConfig --fix --fix-type add-disable-directive  Adds eslint-disable-next-line directives to ignore all \`import/order\` violations inside 'packages/core'.
+		"
+	`);
+});
+
+test("--diff", async () => {
+	const fixturePath = await setupFixture("git-diff");
+	// console.log({ fixturePath });
+
+	expect(runSync(["'/.*/'", ".", "--diff"], fixturePath))
+		.toMatchInlineSnapshot(`
+		"┌──────────────────────┬────────┐
+		│       (index)        │ Values │
+		├──────────────────────┼────────┤
+		│   Considered files   │   0    │
+		│    Skipped files     │   0    │
+		│ Files failed to lint │   0    │
+		│  Files with issues   │   0    │
+		│        Issues        │   0    │
+		└──────────────────────┴────────┘
+		"
+	`);
+
+	await fs.writeFile(path.join(fixturePath, "index.js"), "var a = 1;", {
+		encoding: "utf-8",
+	});
+
+	expect(runSync(["'/.*/'", ".", "--diff"], fixturePath))
+		.toMatchInlineSnapshot(`
+		"┌──────────────────────┬────────┐
+		│       (index)        │ Values │
+		├──────────────────────┼────────┤
+		│   Considered files   │   1    │
+		│    Skipped files     │   0    │
+		│ Files failed to lint │   1    │
+		│  Files with issues   │   0    │
+		│        Issues        │   0    │
+		└──────────────────────┴────────┘
 		"
 	`);
 });
