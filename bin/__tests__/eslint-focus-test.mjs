@@ -92,6 +92,7 @@ test("--fix --fix-type add-disable-directive", async () => {
 		│       (index)        │ Values │
 		├──────────────────────┼────────┤
 		│   Considered files   │   4    │
+		│    Checked rules     │   6    │
 		│    Skipped files     │   0    │
 		│ Files failed to lint │   0    │
 		│  Files with issues   │   0    │

@@ -75,6 +75,7 @@ async function main(argv) {
 	);
 
 	let consideredFilesTally = 0;
+	let checkedRulesTally = 0;
 	let skippedFilesTally = 0;
 	let filesWithIssuesTally = 0;
 	let failedFilesTally = 0;
@@ -131,12 +132,14 @@ async function main(argv) {
 
 		// Remember, we only want to run a focused test of the rule
 		// There's no point testing the rule on a file where that rule would never be enabled in the first place
-		const hasEnabledRules = Object.values(rules).some((ruleSeverity) => {
+		const enabledRules = Object.values(rules).filter((ruleSeverity) => {
 			return ruleSeverity !== undefined && ruleSeverity[0] !== "off";
 		});
+		const hasEnabledRules = enabledRules.length > 0;
 		if (!hasEnabledRules) {
 			return;
 		}
+		checkedRulesTally += enabledRules.length;
 		const code = await fs.readFile(filePath, { encoding: "utf-8" });
 
 		const baseConfig = {
@@ -263,6 +266,7 @@ async function main(argv) {
 
 	console.table({
 		"Considered files": consideredFilesTally,
+		"Checked rules": checkedRulesTally,
 		"Skipped files": skippedFilesTally,
 		"Files failed to lint": failedFilesTally,
 		"Files with issues": filesWithIssuesTally,

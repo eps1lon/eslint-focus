@@ -48,6 +48,7 @@ $ npx eslint-focus react/no-unstable-nested-components .
 │       (index)        │ Values │
 ├──────────────────────┼────────┤
 │   Considered files   │ 71671  │
+│    Checked rules     │ 71671  │
 │    Skipped files     │  181   │
 │ Files failed to lint │   1    │
 │  Files with issues   │  216   │
