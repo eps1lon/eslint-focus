@@ -1,0 +1,8 @@
+module.exports = {
+		rules: {
+			"capitalized-comments": "error",
+			"eqeqeq": "error",
+			"no-constant-condition": "error",
+			"no-empty": "off"
+		}
+	}

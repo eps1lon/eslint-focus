@@ -1,7 +1,6 @@
 import { execSync } from "node:child_process";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { URL } from "node:url";
 import { beforeAll, expect, test } from "@jest/globals";
 import { temporaryDirectory } from "tempy";
 
@@ -81,6 +80,7 @@ test("--diff", async () => {
 		│       (index)        │ Values │
 		├──────────────────────┼────────┤
 		│   Considered files   │   0    │
+		│    Checked rules     │   0    │
 		│    Skipped files     │   0    │
 		│ Files failed to lint │   0    │
 		│  Files with issues   │   0    │
@@ -99,6 +99,7 @@ test("--diff", async () => {
 		│       (index)        │ Values │
 		├──────────────────────┼────────┤
 		│   Considered files   │   1    │
+		│    Checked rules     │   0    │
 		│    Skipped files     │   0    │
 		│ Files failed to lint │   1    │
 		│  Files with issues   │   0    │
@@ -130,7 +131,7 @@ test("--fix --fix-type add-disable-directive", async () => {
 		│       (index)        │ Values │
 		├──────────────────────┼────────┤
 		│   Considered files   │   4    │
-		│    Checked rules     │   6    │
+		│    Checked rules     │   9    │
 		│    Skipped files     │   0    │
 		│ Files failed to lint │   0    │
 		│  Files with issues   │   0    │

@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-const { ESLint } = require("eslint");
 const { spawn } = require("child_process");
-const fs = require("fs/promises");
 const { constants: fsConstants } = require("fs");
-const process = require("process");
+const fs = require("fs/promises");
 const path = require("path");
+
+const { ESLint } = require("eslint");
+const { terminalWidth } = require("yargs");
 const { hideBin } = require("yargs/helpers");
 const Yargs = require("yargs/yargs");
-const { terminalWidth } = require("yargs");
 
 const extensionRegex = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/;
 
@@ -146,7 +146,7 @@ async function main(argv) {
 		const config = await eslint.calculateConfigForFile(filePath);
 
 		/**
-		 * @type {Record<string, [import("eslint").Linter.StringSeverity]>}
+		 * @type {Record<string, [import("eslint").Linter.RuleSeverity]>}
 		 */
 		const rules = {};
 		const mayLintMultipleRules = ruleOrRulePattern.startsWith("/");
@@ -164,7 +164,11 @@ async function main(argv) {
 		// Remember, we only want to run a focused test of the rule
 		// There's no point testing the rule on a file where that rule would never be enabled in the first place
 		const enabledRules = Object.values(rules).filter((ruleSeverity) => {
-			return ruleSeverity !== undefined && ruleSeverity[0] !== "off";
+			return (
+				ruleSeverity !== undefined &&
+				ruleSeverity[0] !== "off" &&
+				ruleSeverity[0] !== 0
+			);
 		});
 		const hasEnabledRules = enabledRules.length > 0;
 		if (!hasEnabledRules) {
@@ -173,17 +177,15 @@ async function main(argv) {
 		checkedRulesTally += enabledRules.length;
 		const code = await fs.readFile(filePath, { encoding: "utf-8" });
 
-		const baseConfig = {
-			...config,
-			rules,
-		};
+		/** @type {ESLint} */
 		const fileLinter = new ESLint({
 			allowInlineConfig,
-			baseConfig,
+			overrideConfig: {
+				rules: config.rules,
+			},
 			cwd: path.dirname(filePath),
 			fix: fix && eslintFixTypes.length > 0,
 			fixTypes: eslintFixTypes,
-			useEslintrc: false,
 		});
 
 		const results = await fileLinter.lintText(code, { filePath });
