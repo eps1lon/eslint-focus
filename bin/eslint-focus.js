@@ -150,8 +150,8 @@ async function main(argv) {
 			allowInlineConfig,
 			baseConfig,
 			cwd: path.dirname(filePath),
-			fix: fix && eslintFixTypes.length > 0,
-			fixTypes: eslintFixTypes,
+			fix: fix && !fixType.includes("add-disable-directive"),
+			fixTypes: eslintFixTypes.length > 0 ? eslintFixTypes : undefined,
 			useEslintrc: false,
 		});
 
