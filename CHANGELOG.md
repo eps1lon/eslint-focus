@@ -1,5 +1,17 @@
 # eslint-focus
 
+## 1.5.0
+
+### Minor Changes
+
+- [#30](https://github.com/eps1lon/eslint-focus/pull/30) [`abed6ed`](https://github.com/eps1lon/eslint-focus/commit/abed6edcb84b15553d6a76515ab3923c8099dd55) Thanks [@eps1lon](https://github.com/eps1lon)! - Add number of checked rules to tally
+
+- [#29](https://github.com/eps1lon/eslint-focus/pull/29) [`b39fbd2`](https://github.com/eps1lon/eslint-focus/commit/b39fbd2da44de6e68006240ce21bf92f64a0e5aa) Thanks [@eps1lon](https://github.com/eps1lon)! - Add support for only including files that are also part of git-diff by adding `--diff [gitDiffOptions]`.
+
+### Patch Changes
+
+- [#35](https://github.com/eps1lon/eslint-focus/pull/35) [`4b1c28d`](https://github.com/eps1lon/eslint-focus/commit/4b1c28d0d2ecf70f68afaa952d67b7f5bc221adc) Thanks [@eps1lon](https://github.com/eps1lon)! - Switch to trusted publishing
+
 ## 1.4.0
 
 ### Minor Changes
