@@ -8,6 +8,12 @@ on:
 jobs:
   release:
     name: Release
+    environment: production
+    permissions:
+      id-token: write # Required for OIDC
+      # Changesets creates a commit and PR for the release
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -16,10 +22,10 @@ jobs:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
 
-      - name: Setup Node.js 12.x
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 12.x
+          node-version: 24.x
 
       - name: Install Dependencies
         run: yarn
@@ -31,7 +37,6 @@ jobs:
           publish: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
 
       - name: Debug release
         # Shows files included in release
