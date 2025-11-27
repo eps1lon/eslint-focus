@@ -78,13 +78,14 @@ test("--diff", async () => {
 	expect(runSync(["'/.*/'", ".", "--diff"], fixturePath))
 		.toMatchInlineSnapshot(`
 		"┌──────────────────────┬────────┐
-		│       (index)        │ Values │
+		│ (index)              │ Values │
 		├──────────────────────┼────────┤
-		│   Considered files   │   0    │
-		│    Skipped files     │   0    │
-		│ Files failed to lint │   0    │
-		│  Files with issues   │   0    │
-		│        Issues        │   0    │
+		│ Considered files     │ 0      │
+		│ Checked rules        │ 0      │
+		│ Skipped files        │ 0      │
+		│ Files failed to lint │ 0      │
+		│ Files with issues    │ 0      │
+		│ Issues               │ 0      │
 		└──────────────────────┴────────┘
 		"
 	`);
@@ -96,13 +97,14 @@ test("--diff", async () => {
 	expect(runSync(["'/.*/'", ".", "--diff"], fixturePath))
 		.toMatchInlineSnapshot(`
 		"┌──────────────────────┬────────┐
-		│       (index)        │ Values │
+		│ (index)              │ Values │
 		├──────────────────────┼────────┤
-		│   Considered files   │   1    │
-		│    Skipped files     │   0    │
-		│ Files failed to lint │   1    │
-		│  Files with issues   │   0    │
-		│        Issues        │   0    │
+		│ Considered files     │ 1      │
+		│ Checked rules        │ 0      │
+		│ Skipped files        │ 0      │
+		│ Files failed to lint │ 1      │
+		│ Files with issues    │ 0      │
+		│ Issues               │ 0      │
 		└──────────────────────┴────────┘
 		"
 	`);
@@ -127,14 +129,14 @@ test("--fix --fix-type add-disable-directive", async () => {
 		)
 	).toMatchInlineSnapshot(`
 		"┌──────────────────────┬────────┐
-		│       (index)        │ Values │
+		│ (index)              │ Values │
 		├──────────────────────┼────────┤
-		│   Considered files   │   4    │
-		│    Checked rules     │   6    │
-		│    Skipped files     │   0    │
-		│ Files failed to lint │   0    │
-		│  Files with issues   │   0    │
-		│        Issues        │   0    │
+		│ Considered files     │ 4      │
+		│ Checked rules        │ 6      │
+		│ Skipped files        │ 0      │
+		│ Files failed to lint │ 0      │
+		│ Files with issues    │ 0      │
+		│ Issues               │ 0      │
 		└──────────────────────┴────────┘
 		"
 	`);
